@@ -835,11 +835,19 @@ function App() {
     try {
       const folder = await FileSystem.openFolder();
       if (folder) {
+        // Optimistic UI: Set handle immediately so title/state updates
         setFolderHandle(folder);
         updateRecentFolders(folder);
-        const structure = await FileSystem.scanDirectory(folder);
-        setFileTree(structure);
-        addToast(`Working with folder: ${folder.name}`, 'success');
+        addToast(`Loading project: ${folder.name}...`, 'info');
+
+        // Asynchronous scan to avoid blocking
+        FileSystem.scanDirectory(folder).then(structure => {
+          setFileTree(structure);
+          addToast(`Loaded folder: ${folder.name}`, 'success');
+        }).catch(err => {
+          console.error("Async scan failed:", err);
+          addToast("Failed to load project structure", "error");
+        });
       }
     } catch (err) {
       addToast(`Error opening folder: ${err.message}`, 'error');
@@ -854,8 +862,8 @@ function App() {
       setOpenFiles([]);
       setActiveFileId(null);
 
-      // Short delay to allow React to unmount previous components
-      await new Promise(r => setTimeout(r, 50));
+      // Short delay to allow React to unmount previous components (reduced for speed)
+      await new Promise(r => setTimeout(r, 10));
 
       const isNative = isTauri();
 
@@ -881,15 +889,21 @@ function App() {
 
       console.log("[App] Opening Recent:", folderObject);
 
-      // 4. Scan & Load
-      const structure = await FileSystem.scanDirectory(folderObject);
-
+      // 4. Optimistic UI Update
       setFolderHandle(folderObject);
-      setFileTree(structure);
       updateRecentFolders(folder);
-      addToast(`Opened recent: ${folder.name}`, 'success');
+      addToast(`Opening recent: ${folder.name}...`, 'info');
 
-      // 5. Index Symbols
+      // 5. Asynchronous Scan & Load
+      FileSystem.scanDirectory(folderObject).then(structure => {
+        setFileTree(structure);
+        addToast(`Recent project loaded: ${folder.name}`, 'success');
+      }).catch(err => {
+        console.error("Async scan failed for recent:", err);
+        addToast("Failed to load project structure", "error");
+      });
+
+      // 6. Index Symbols in background
       import('./services/SymbolIndexer').then(({ SymbolIndexer }) => {
         SymbolIndexer.clearProjectSymbols();
       });

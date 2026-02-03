@@ -32,7 +32,11 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
         return Err("Directory does not exist".to_string());
     }
 
-    fn walk(current_path: &Path) -> Vec<FileItem> {
+    fn fast_walk(current_path: &Path, depth: u32) -> Vec<FileItem> {
+        if depth > 5 { // Limit depth for initial scan to keep it fast
+            return Vec::new();
+        }
+        
         let mut items = Vec::new();
 
         if let Ok(entries) = std::fs::read_dir(current_path) {
@@ -43,14 +47,24 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
                     .unwrap_or("")
                     .to_string();
 
-                // Simple exclusion list for speed
-                if file_name.starts_with('.') && file_name != ".stan" {
+                // Skip common heavy directories or hidden system files
+                if file_name == "node_modules" || file_name == ".git" || file_name == "target" || 
+                   file_name == "dist" || file_name == "build" || file_name == ".tauri" || 
+                   file_name == ".next" || file_name == ".venv" || file_name == "__pycache__" {
+                    let full_path = path_buf.to_string_lossy().to_string();
+                    items.push(FileItem {
+                        id: full_path.clone(),
+                        name: file_name,
+                        kind: "directory".to_string(),
+                        path: full_path,
+                        children: Some(Vec::new()), // Don't recurse into these
+                    });
                     continue;
                 }
-                if file_name == "node_modules" || file_name == "target" || file_name == "dist" {
-                    // We might still want to show them but not recurse deeply?
-                    // For "Lightest Core", let's hide node_modules from recursive scan for now
-                    // In a real IDE, you'd scan a few levels or lazily.
+
+                // Skip other hidden files except important config ones
+                if file_name.starts_with('.') && file_name != ".stan" && file_name != ".gitignore" && file_name != ".env" {
+                    continue;
                 }
 
                 let is_dir = path_buf.is_dir();
@@ -65,16 +79,13 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
                 };
 
                 if is_dir {
-                    // Limit depth for safety or provide a better way to handle deep trees
-                    // For now, simple recursion
-                    item.children = Some(walk(&path_buf));
+                    item.children = Some(fast_walk(&path_buf, depth + 1));
                 }
 
                 items.push(item);
             }
         }
 
-        // Sort: directories first, then alphabetical
         items.sort_by(|a, b| {
             if a.kind == b.kind {
                 a.name.to_lowercase().cmp(&b.name.to_lowercase())
@@ -88,7 +99,7 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
         items
     }
 
-    Ok(walk(root_path))
+    Ok(fast_walk(root_path, 0))
 }
 
 #[tauri::command]
