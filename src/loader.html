@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan Studio Loader</title>
+    <style>
+        /* Full-screen loader container */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            /* Pitch-black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            text-align: center;
+            color: #ffffff;
+        }
+
+        /* Placeholder image */
+        .loader-image {
+            width: 120px;
+            height: 120px;
+            background-color: #222222;
+            /* Dark gray placeholder */
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loader-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 6px solid #222222;
+            /* matches placeholder */
+            border-top: 6px solid #00ffff;
+            /* bright cyan for contrast */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            margin-top: 15px;
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loader-container">
+        <!-- Placeholder for Stan Studio logo or image -->
+        <div class="loader-image"></div>
+        <!-- Spinner -->
+        <div class="spinner"></div>
+        <!-- Loader text -->
+        <div class="loader-text">Loading Stan Studio...</div>
+    </div>
+</body>
+
+</html>

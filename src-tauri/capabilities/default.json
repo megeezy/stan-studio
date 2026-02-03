@@ -1,0 +1,125 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "fs:scope",
+      "preference": "allow",
+      "scopes": [
+        "$HOME/**",
+        "/**",
+        "C:\\**"
+      ]
+    },
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-read-dir",
+    "fs:allow-mkdir",
+    "fs:allow-exists",
+    "fs:allow-create",
+    "fs:allow-write",
+    "fs:default",
+    "fs:read-all",
+    "fs:write-all",
+    "dialog:default",
+    "shell:default",
+    {
+      "identifier": "shell:allow-execute",
+      "preference": "allow",
+      "args": [],
+      "scopes": [
+        {
+          "cmd": "python3",
+          "args": true
+        },
+        {
+          "cmd": "python",
+          "args": true
+        },
+        {
+          "cmd": "node",
+          "args": true
+        },
+        {
+          "cmd": "npm",
+          "args": true
+        },
+        {
+          "cmd": "bash",
+          "args": true
+        },
+        {
+          "cmd": "sh",
+          "args": true
+        },
+        {
+          "cmd": "gcc",
+          "args": true
+        },
+        {
+          "cmd": "g++",
+          "args": true
+        },
+        {
+          "cmd": "cargo",
+          "args": true
+        },
+        {
+          "cmd": "go",
+          "args": true
+        },
+        {
+          "cmd": "java",
+          "args": true
+        },
+        {
+          "cmd": "javac",
+          "args": true
+        },
+        {
+          "cmd": "ts-node",
+          "args": true
+        },
+        {
+          "cmd": "ruby",
+          "args": true
+        },
+        {
+          "cmd": "php",
+          "args": true
+        },
+        {
+          "cmd": "xdg-open",
+          "args": true
+        },
+        {
+          "cmd": "open",
+          "args": true
+        },
+        {
+          "cmd": "start",
+          "args": true
+        },
+        {
+          "cmd": "stan-engine",
+          "args": true
+        }
+      ]
+    },
+    "os:default",
+    "process:default",
+    "notification:default",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window",
+    "core:window:allow-create",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-close",
+    "core:window:allow-set-title"
+  ]
+}
