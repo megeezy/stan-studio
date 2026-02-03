@@ -26,14 +26,22 @@ pub struct FileWatcherState {
 }
 
 #[tauri::command]
-pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
+pub fn scan_directory_native(path: String, recursive: Option<bool>) -> Result<Vec<FileItem>, String> {
     let root_path = Path::new(&path);
     if !root_path.exists() {
         return Err("Directory does not exist".to_string());
     }
 
-    fn fast_walk(current_path: &Path, depth: u32) -> Vec<FileItem> {
-        if depth > 5 { // Limit depth for initial scan to keep it fast
+    let is_recursive = recursive.unwrap_or(false);
+
+    fn fast_walk(current_path: &Path, depth: u32, recursive: bool) -> Vec<FileItem> {
+        // If not recursive, only go 1 level deep
+        if !recursive && depth > 0 {
+            return Vec::new();
+        }
+        
+        // If recursive, still limit for safety but deeper than 1
+        if recursive && depth > 10 {
             return Vec::new();
         }
         
@@ -79,7 +87,12 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
                 };
 
                 if is_dir {
-                    item.children = Some(fast_walk(&path_buf, depth + 1));
+                    if recursive {
+                        item.children = Some(fast_walk(&path_buf, depth + 1, true));
+                    } else {
+                        // Mark as directory with NO children yet, so frontend knows it can be explored
+                        item.children = Some(Vec::new());
+                    }
                 }
 
                 items.push(item);
@@ -99,7 +112,7 @@ pub fn scan_directory_native(path: String) -> Result<Vec<FileItem>, String> {
         items
     }
 
-    Ok(fast_walk(root_path, 0))
+    Ok(fast_walk(root_path, 0, is_recursive))
 }
 
 #[tauri::command]

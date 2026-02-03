@@ -840,8 +840,8 @@ function App() {
         updateRecentFolders(folder);
         addToast(`Loading project: ${folder.name}...`, 'info');
 
-        // Asynchronous scan to avoid blocking
-        FileSystem.scanDirectory(folder).then(structure => {
+        // Asynchronous shallow scan to avoid blocking and keep initial load instant
+        FileSystem.scanDirectory(folder, false).then(structure => {
           setFileTree(structure);
           addToast(`Loaded folder: ${folder.name}`, 'success');
         }).catch(err => {
@@ -894,8 +894,8 @@ function App() {
       updateRecentFolders(folder);
       addToast(`Opening recent: ${folder.name}...`, 'info');
 
-      // 5. Asynchronous Scan & Load
-      FileSystem.scanDirectory(folderObject).then(structure => {
+      // 5. Asynchronous Shallow Scan & Load
+      FileSystem.scanDirectory(folderObject, false).then(structure => {
         setFileTree(structure);
         addToast(`Recent project loaded: ${folder.name}`, 'success');
       }).catch(err => {
@@ -913,6 +913,35 @@ function App() {
       addToast(`Failed to open recent: ${err.message}`, 'error');
     }
   }, [updateRecentFolders, addToast]);
+
+  const handleExpandFolder = useCallback(async (item) => {
+    try {
+      console.log(`[App] Expanding folder: ${item.name}`);
+      const children = await FileSystem.scanDirectory({
+        path: item.path,
+        type: item.type || (isTauri() ? 'native' : 'web'),
+        handle: item.handle
+      }, false);
+
+      setFileTree(prev => {
+        const updateTree = (list) => {
+          return list.map(node => {
+            if (node.id === item.id) {
+              return { ...node, children };
+            }
+            if (node.children) {
+              return { ...node, children: updateTree(node.children) };
+            }
+            return node;
+          });
+        };
+        return updateTree(prev);
+      });
+    } catch (err) {
+      console.error("[App] Failed to expand folder:", err);
+      addToast("Failed to load folder contents", "error");
+    }
+  }, [addToast]);
 
   const handleCloneRepo = useCallback(async () => {
     if (!isTauri()) {
@@ -1194,6 +1223,7 @@ function App() {
           onDelete={(item) => alert('Delete: ' + item.name)}
           onRefresh={refreshFileTree}
           onOpenDiff={handleOpenDiff}
+          onExpandFolder={handleExpandFolder}
         />
 
         <div className="workbench-main" style={{

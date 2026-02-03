@@ -50,12 +50,15 @@ export const FileSystem = {
     },
 
     // Scan directory contents specifically for our tree structure
-    async scanDirectory(folderObject) {
+    async scanDirectory(folderObject, recursive = true) {
         if (folderObject.type === 'native') {
             try {
                 // Use native Rust scan for high performance
                 const { invoke } = await import('@tauri-apps/api/core');
-                const items = await invoke('scan_directory_native', { path: folderObject.path });
+                const items = await invoke('scan_directory_native', {
+                    path: folderObject.path,
+                    recursive: recursive
+                });
 
                 // Recursively add type: 'native' and ensure proper structure for JS
                 const mapItems = (list) => {

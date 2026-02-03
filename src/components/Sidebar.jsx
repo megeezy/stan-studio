@@ -56,7 +56,7 @@ const MODELS_DATA = [
 
 
 
-const SidebarItem = React.memo(({ name, icon: Icon, indent, isActive, isFolder, isOpen, onClick, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop, onClose }) => {
+const SidebarItem = React.memo(({ name, icon: Icon, indent, isActive, isFolder, isOpen, onClick, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop, onClose, isLoading }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
         <div
@@ -87,7 +87,11 @@ const SidebarItem = React.memo(({ name, icon: Icon, indent, isActive, isFolder, 
             {!isFolder && <span className="spacer" style={{ width: '18px' }}></span>}
 
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
-                {Icon && (typeof Icon === 'function' ? <Icon /> : Icon)}
+                {isLoading ? (
+                    <RefreshCcw size={12} className="spin" style={{ color: 'var(--accent)' }} />
+                ) : (
+                    Icon && (typeof Icon === 'function' ? <Icon /> : Icon)
+                )}
             </span>
             <span className="file-name" style={{ fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
                 {name}
@@ -106,7 +110,7 @@ const SidebarItem = React.memo(({ name, icon: Icon, indent, isActive, isFolder, 
     );
 });
 
-const FileTree = React.memo(({ items, indent = 1, activeFile, onSelectItem, openFolders, onToggleFolder, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop }) => {
+const FileTree = React.memo(({ items, indent = 1, activeFile, onSelectItem, openFolders, onToggleFolder, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop, loadingFolders }) => {
     return (
         <>
             {items.map((item) => {
@@ -123,12 +127,13 @@ const FileTree = React.memo(({ items, indent = 1, activeFile, onSelectItem, open
                             isFolder={isFolder}
                             isOpen={isOpen}
                             isActive={activeFile && activeFile.id === item.id}
-                            onClick={() => isFolder ? onToggleFolder(itemKey) : onSelectItem(item)}
+                            onClick={() => isFolder ? onToggleFolder(item) : onSelectItem(item)}
                             onContextMenu={(e) => onContextMenu(e, item)}
                             onDragStart={(e) => onDragStart(e, item)}
                             onDragOver={(e) => onDragOver(e)}
                             onDragLeave={(e) => onDragLeave(e)}
                             onDrop={(e) => onDrop(e, item)}
+                            isLoading={loadingFolders && loadingFolders[itemKey]}
                         />
                         {isFolder && isOpen && item.children && (
                             <FileTree
@@ -143,6 +148,7 @@ const FileTree = React.memo(({ items, indent = 1, activeFile, onSelectItem, open
                                 onDragOver={onDragOver}
                                 onDragLeave={onDragLeave}
                                 onDrop={onDrop}
+                                loadingFolders={loadingFolders}
                             />
                         )}
                     </React.Fragment>
@@ -200,7 +206,7 @@ const ContextMenu = ({ x, y, options, onClose }) => {
     );
 };
 
-const Sidebar = ({ fileTree, activeFile, openFiles = [], onSelectItem, onCloseFile, folderHandle, onOpenFolder, onCloseFolder, view, onCreateFile, onCreateFolder, onRename, onDelete, onRefresh, onOpenDiff }) => {
+const Sidebar = ({ fileTree, activeFile, openFiles = [], onSelectItem, onCloseFile, folderHandle, onOpenFolder, onCloseFolder, view, onCreateFile, onCreateFolder, onRename, onDelete, onRefresh, onOpenDiff, onExpandFolder }) => {
     const [isExplorerOpen, setIsExplorerOpen] = useState(true);
     const [openFolders, setOpenFolders] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
@@ -215,12 +221,28 @@ const Sidebar = ({ fileTree, activeFile, openFiles = [], onSelectItem, onCloseFi
     const [isReplaceOpen, setIsReplaceOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState(null);
     const [showOpenEditorsMenu, setShowOpenEditorsMenu] = useState(false);
+    const [loadingFolders, setLoadingFolders] = useState({});
 
 
 
-    const toggleFolder = useCallback((key) => {
-        setOpenFolders(prev => ({ ...prev, [key]: !prev[key] }));
-    }, []);
+    const toggleFolder = useCallback(async (item) => {
+        const key = item.id;
+        const willBeOpen = !openFolders[key];
+
+        setOpenFolders(prev => ({ ...prev, [key]: willBeOpen }));
+
+        // If opening a folder and it has no children but is a directory, load it
+        if (willBeOpen && item.kind === 'directory' && (!item.children || item.children.length === 0)) {
+            if (onExpandFolder) {
+                setLoadingFolders(prev => ({ ...prev, [key]: true }));
+                try {
+                    await onExpandFolder(item);
+                } finally {
+                    setLoadingFolders(prev => ({ ...prev, [key]: false }));
+                }
+            }
+        }
+    }, [openFolders, onExpandFolder]);
 
     const handleContextMenu = (e, item) => {
         e.preventDefault();
@@ -366,6 +388,7 @@ const Sidebar = ({ fileTree, activeFile, openFiles = [], onSelectItem, onCloseFi
                                     onDragOver={handleDragOver}
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
+                                    loadingFolders={loadingFolders}
                                 />
                             ) : (
                                 <div style={{ padding: '20px', textAlign: 'center', fontSize: '11px', opacity: 0.5 }}>
