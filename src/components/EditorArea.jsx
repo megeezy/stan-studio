@@ -391,6 +391,12 @@ const StandaloneEditor = ({ fileData, settings, theme, onSave, onContentChange, 
         // Initialize LSP Service
         LSPService.init(monaco);
 
+        // Efficient Resizing
+        const resizeObserver = new ResizeObserver(() => {
+            editor.layout();
+        });
+        resizeObserver.observe(editor.getDomNode().parentElement);
+
         // Track cursor position
         editor.onDidChangeCursorPosition((e) => {
             if (onCursorChange) {
@@ -400,6 +406,10 @@ const StandaloneEditor = ({ fileData, settings, theme, onSave, onContentChange, 
                 });
             }
         });
+
+        return () => {
+            resizeObserver.disconnect();
+        };
     };
 
     const getLanguage = (name) => getLanguageIdByFilename(name);
@@ -428,7 +438,7 @@ const StandaloneEditor = ({ fileData, settings, theme, onSave, onContentChange, 
                 cursorBlinking: settings.cursorBlinking,
                 renderWhitespace: settings.renderWhitespace,
                 scrollBeyondLastLine: false,
-                automaticLayout: true,
+                automaticLayout: false, // Replaced by ResizeObserver for better performance
                 padding: { top: 20 },
                 contextmenu: true,
                 smoothScrolling: true,
@@ -441,7 +451,7 @@ const StandaloneEditor = ({ fileData, settings, theme, onSave, onContentChange, 
     );
 };
 
-const EditorContent = ({ fileData, settings, theme, customColors, onSave, onContentChange, onCursorChange }) => {
+const EditorContent = React.memo(({ fileData, settings, theme, customColors, onSave, onContentChange, onCursorChange }) => {
     if (fileData.isDiff) {
         return <DiffEditorWrapper fileData={fileData} settings={settings} theme={theme} customColors={customColors} />;
     }
@@ -466,9 +476,9 @@ const EditorContent = ({ fileData, settings, theme, customColors, onSave, onCont
             onCursorChange={onCursorChange}
         />
     );
-};
+});
 
-const Breadcrumbs = ({ fileData }) => {
+const Breadcrumbs = React.memo(({ fileData }) => {
     if (!fileData || !fileData.id) return null;
 
     // Handle diffs or special files
@@ -506,7 +516,7 @@ const Breadcrumbs = ({ fileData }) => {
             ))}
         </div>
     );
-};
+});
 
 const EditorArea = ({ fileData, openFiles, onSwitchTab, onCloseFile, onSave, onContentChange, onReorderTabs, onCursorChange }) => {
     const { theme, customColors } = useTheme();

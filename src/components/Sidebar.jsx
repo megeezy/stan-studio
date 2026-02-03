@@ -56,7 +56,7 @@ const MODELS_DATA = [
 
 
 
-const SidebarItem = ({ name, icon: Icon, indent, isActive, isFolder, isOpen, onClick, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop, onClose }) => {
+const SidebarItem = React.memo(({ name, icon: Icon, indent, isActive, isFolder, isOpen, onClick, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop, onClose }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
         <div
@@ -104,9 +104,9 @@ const SidebarItem = ({ name, icon: Icon, indent, isActive, isFolder, isOpen, onC
             )}
         </div>
     );
-};
+});
 
-const FileTree = ({ items, indent = 1, activeFile, onSelectItem, openFolders, onToggleFolder, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop }) => {
+const FileTree = React.memo(({ items, indent = 1, activeFile, onSelectItem, openFolders, onToggleFolder, onContextMenu, onDragStart, onDragOver, onDragLeave, onDrop }) => {
     return (
         <>
             {items.map((item) => {
@@ -150,7 +150,7 @@ const FileTree = ({ items, indent = 1, activeFile, onSelectItem, openFolders, on
             })}
         </>
     );
-};
+});
 
 const ContextMenu = ({ x, y, options, onClose }) => {
     useEffect(() => {
@@ -218,9 +218,9 @@ const Sidebar = ({ fileTree, activeFile, openFiles = [], onSelectItem, onCloseFi
 
 
 
-    const toggleFolder = (key) => {
+    const toggleFolder = useCallback((key) => {
         setOpenFolders(prev => ({ ...prev, [key]: !prev[key] }));
-    };
+    }, []);
 
     const handleContextMenu = (e, item) => {
         e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, useRef, useMemo } from 'react';
 import NavBar from './components/NavBar';
 import ActivityBar from './components/ActivityBar';
 import Sidebar from './components/Sidebar';
@@ -229,8 +229,9 @@ function App() {
 
 
   // Computed active file data
-  const activeFileData = openFiles.find(f => f.id === activeFileId);
-  const activeFileName = activeFileData ? activeFileData.name : null;
+  // Computed active file data (Memoized for performance)
+  const activeFileData = useMemo(() => openFiles.find(f => f.id === activeFileId), [openFiles, activeFileId]);
+  const activeFileName = useMemo(() => activeFileData ? activeFileData.name : null, [activeFileData]);
 
   const handleSaveFile = useCallback(async (id, content) => {
     const file = openFiles.find(f => f.id === id);
@@ -1122,7 +1123,7 @@ function App() {
 
   return (
     <div className="stan-studio-layout">
-      <NavBar
+      <MemoizedNavBar
         onNewTextFile={handleNewTextFile}
         onNewFile={handleNewFile}
         onOpenFile={handleOpenFile}
@@ -1148,7 +1149,7 @@ function App() {
       />
 
       <div className="main-container">
-        <ActivityBar
+        <MemoizedActivityBar
           activeView={currentSidebarView}
           onSwitchView={(view) => {
             if (view === 'COPILOT') {
@@ -1163,7 +1164,7 @@ function App() {
           onOpenSettings={() => setShowSettings('General')}
         />
 
-        <Sidebar
+        <MemoizedSidebar
           view={currentSidebarView}
           fileTree={fileTree}
           activeFile={activeFileData}
@@ -1274,7 +1275,7 @@ function App() {
         />
       </div>
 
-      <StatusBar
+      <MemoizedStatusBar
         fileName={activeFileName}
         projectName={folderHandle ? folderHandle.name : 'No Folder Opened'}
       />
@@ -1292,5 +1293,11 @@ function App() {
     </div>
   );
 }
+
+// Memoized Components to prevent unnecessary re-renders of the whole app
+const MemoizedNavBar = React.memo(NavBar);
+const MemoizedActivityBar = React.memo(ActivityBar);
+const MemoizedSidebar = React.memo(Sidebar);
+const MemoizedStatusBar = React.memo(StatusBar);
 
 export default App;
