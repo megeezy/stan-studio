@@ -1,5 +1,11 @@
 # Stan Studio
 
+**Important: Development Status and Disclaimer**
+Stan Studio is currently in a pre-alpha development phase. A significant number of features are incomplete, experimental, or non-functional. Users should expect frequent bugs, performance inconsistencies, and potential instability. 
+
+The Maya Agentic Engine is in an early "beginner" stage and is not yet fully integrated across all IDE subsystems. This software is provided for experimental purposes only and is not recommended for production use at this time.
+
+## Overview
 Stan Studio is an industrial-grade, AI-native integrated development environment (IDE) engineered for agentic workflows and local-first software development. It leverages a high-performance hybrid architecture combining a Rust-based control plane with a React-driven user interface to provide a low-latency, secure, and highly extensible workspace.
 
 ## Core Components
