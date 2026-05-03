@@ -97,7 +97,7 @@ const DropdownMenu = ({ label, items, isOpen, onOpen, onClose }) => {
     );
 };
 
-const NavBar = ({ onNewTextFile, onNewFile, onOpenFile, onOpenFolder, onOpenStanProject, onExportProject, onSaveFile, onSaveAll, onCloseFolder, onOpenSettings, onOpenCommandPalette, onOpenTerminal, onToggleTerminal, onSplitTerminal, onRunFile, folderName, activeFileName, onSaveAs, onRefresh, onNewWindow, onOpenRecent, recentFolders }) => {
+const NavBar = ({ onNewTextFile, onNewFile, onOpenFile, onOpenFolder, onExportProject, onSaveFile, onSaveAll, onCloseFolder, onOpenSettings, onOpenCommandPalette, onOpenTerminal, onToggleTerminal, onSplitTerminal, onRunFile, folderName, activeFileName, onSaveAs, onRefresh, onNewWindow, onOpenRecent, recentFolders }) => {
     const [openMenu, setOpenMenu] = useState(null);
     const [isMaximized, setIsMaximized] = useState(false);
 
@@ -136,7 +136,6 @@ const NavBar = ({ onNewTextFile, onNewFile, onOpenFile, onOpenFolder, onOpenStan
             { separator: true },
             { label: 'Open File...', shortcut: 'Ctrl+O', onClick: () => onOpenFile && onOpenFile() },
             { label: 'Open Folder...', shortcut: 'Ctrl+K O', onClick: onOpenFolder },
-            { label: 'Open Stan Project...', shortcut: '', onClick: onOpenStanProject },
             ...(recentFolders.length > 0 ? [{
                 label: 'Open Recent',
                 shortcut: '>',

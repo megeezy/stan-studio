@@ -7,18 +7,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
-dist
-dist-ssr
-*.local
+/dist
+/dist-ssr
+/src-tauri/target
+/target
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS
 .DS_Store
+Thumbs.db
+*.swp
+
+# Editor
+.vscode/
+!.vscode/extensions.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+
+# Tauri
+src-tauri/binaries/
+src-tauri/gen/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Stan Studio specifics
+*.stan
+scripts/temp/
+

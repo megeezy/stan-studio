@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Columns2, Plus, Terminal as TerminalIcon, Trash2 } from 'lucide-react';
 import Terminal from './Terminal';
-import { useDiagnostics } from '../context/DiagnosticsContext';
+import { useDiagnostics } from '../hooks/useDiagnostics';
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 const ProblemsView = () => {

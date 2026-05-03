@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-
-const DiagnosticsContext = createContext();
+import React, { useState } from 'react';
+import { DiagnosticsContext } from './DiagnosticsContextCore';
 
 export const DiagnosticsProvider = ({ children }) => {
     // Structure: { 'file/path': [{ message, severity, startLineNumber, ... }] }
@@ -8,32 +7,32 @@ export const DiagnosticsProvider = ({ children }) => {
 
     const updateDiagnostics = (fileId, markers) => {
         setDiagnostics(prev => {
-            // Only update if changed to avoid renders
-            if (JSON.stringify(prev[fileId]) === JSON.stringify(markers)) return prev;
-
-            const newDiag = { ...prev };
-            if (!markers || markers.length === 0) {
-                delete newDiag[fileId];
+            const next = { ...prev };
+            if (markers.length === 0) {
+                delete next[fileId];
             } else {
-                newDiag[fileId] = markers;
+                next[fileId] = markers;
             }
-            return newDiag;
+            return next;
         });
     };
 
     const clearDiagnostics = (fileId) => {
         setDiagnostics(prev => {
-            if (!prev[fileId]) return prev;
-            const newDiag = { ...prev };
-            delete newDiag[fileId];
-            return newDiag;
+            const next = { ...prev };
+            delete next[fileId];
+            return next;
         });
     };
 
     const getAllDiagnostics = () => {
-        return Object.entries(diagnostics).flatMap(([file, markers]) =>
-            markers.map(m => ({ ...m, file }))
-        );
+        const list = [];
+        Object.entries(diagnostics).forEach(([file, markers]) => {
+            markers.forEach(m => {
+                list.push({ ...m, file });
+            });
+        });
+        return list;
     };
 
     return (
@@ -42,12 +41,3 @@ export const DiagnosticsProvider = ({ children }) => {
         </DiagnosticsContext.Provider>
     );
 };
-
-// Custom hook to use the diagnostics context
-export function useDiagnostics() {
-    const context = useContext(DiagnosticsContext);
-    if (!context) {
-        throw new Error('useDiagnostics must be used within a DiagnosticsProvider');
-    }
-    return context;
-}

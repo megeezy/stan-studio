@@ -2,11 +2,13 @@ mod terminal;
 mod filesystem;
 mod search;
 mod lsp;
+mod maya;
 
 use terminal::{TerminalState, spawn_terminal, write_to_terminal, resize_terminal, kill_terminal};
 use filesystem::{FileWatcherState, scan_directory_native, watch_directory_native, unwatch_directory_native, read_file_safe_native, create_file_native, mkdir_native, write_file_native};
-use search::search_in_files_native;
+use search::{search_in_files_native, list_files_native};
 use lsp::{LSPState, start_lsp, stop_lsp, send_lsp_message};
+use maya::maya_native_request;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
@@ -41,9 +43,11 @@ pub fn run() {
       mkdir_native,
       write_file_native,
       search_in_files_native,
+      list_files_native,
       start_lsp,
       stop_lsp,
-      send_lsp_message
+      send_lsp_message,
+      maya_native_request
     ])
     .setup(|app| {
       // Fix TTY corruption: Detach from terminal

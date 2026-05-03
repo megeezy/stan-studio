@@ -19,9 +19,12 @@ export const SettingsProvider = ({ children }) => {
     const [settings, setSettings] = useState(DEFAULT_SETTINGS);
     const [isLoaded, setIsLoaded] = useState(false);
     useEffect(() => {
+        console.log("[SettingsProvider] Attempting to load settings...");
         async function load() {
             try {
+                console.log("[SettingsProvider] Awaiting SettingsService.loadSettings...");
                 const saved = await SettingsService.loadSettings(DEFAULT_SETTINGS);
+                console.log("[SettingsProvider] Settings loaded successfully.");
                 setSettings(saved);
             } catch (err) {
                 console.error("[SettingsProvider] Failed to load settings:", err);

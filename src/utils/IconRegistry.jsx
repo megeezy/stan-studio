@@ -11,6 +11,28 @@ import {
 } from 'lucide-react';
 import stanLogo from '../assets/stan-logo.png';
 
+// Import logos from programming-languages-logos
+import pythonLogo from 'programming-languages-logos/src/python/python.svg';
+import cLogo from 'programming-languages-logos/src/c/c.svg';
+import jsLogo from 'programming-languages-logos/src/javascript/javascript.svg';
+
+import tsLogo from 'programming-languages-logos/src/typescript/typescript.svg';
+import htmlLogo from 'programming-languages-logos/src/html/html.svg';
+import cssLogo from 'programming-languages-logos/src/css/css.svg';
+import goLogo from 'programming-languages-logos/src/go/go.svg';
+import javaLogo from 'programming-languages-logos/src/java/java.svg';
+import cppLogo from 'programming-languages-logos/src/cpp/cpp.svg';
+import phpLogo from 'programming-languages-logos/src/php/php.svg';
+import rubyLogo from 'programming-languages-logos/src/ruby/ruby.svg';
+import swiftLogo from 'programming-languages-logos/src/swift/swift.svg';
+import csharpLogo from 'programming-languages-logos/src/csharp/csharp.svg';
+import haskellLogo from 'programming-languages-logos/src/haskell/haskell.svg';
+import kotlinLogo from 'programming-languages-logos/src/kotlin/kotlin.svg';
+import luaLogo from 'programming-languages-logos/src/lua/lua.svg';
+import rLogo from 'programming-languages-logos/src/r/r.svg';
+
+
+
 // Professional SVG Icons for Developer Languages
 const Icons = {
     Python: (size) => (
@@ -78,14 +100,21 @@ export const getProfessionalIcon = (name, kind, size = 14) => {
             return <img src={stanLogo} alt="stan" style={{ width: size, height: size, filter: 'drop-shadow(0 0 2px var(--accent))' }} />;
 
         case 'py':
-            return Icons.Python(size);
+        case 'pyi':
+        case 'pyw':
+        case 'ipynb':
+            return <img src={pythonLogo} alt="python" style={{ width: size, height: size }} />;
 
         case 'js':
         case 'mjs':
-            return Icons.JS(size);
+        case 'cjs':
+            return <img src={jsLogo} alt="js" style={{ width: size, height: size }} />;
 
         case 'ts':
-            return Icons.TS(size);
+        case 'mts':
+        case 'cts':
+            return <img src={tsLogo} alt="ts" style={{ width: size, height: size }} />;
+
 
         case 'jsx':
         case 'tsx':
@@ -93,11 +122,14 @@ export const getProfessionalIcon = (name, kind, size = 14) => {
 
         case 'html':
         case 'htm':
-            return Icons.HTML(size);
+        case 'shtml':
+        case 'xhtml':
+            return <img src={htmlLogo} alt="html" style={{ width: size, height: size }} />;
+
 
         case 'css':
         case 'scss':
-            return Icons.CSS(size);
+            return <img src={cssLogo} alt="css" style={{ width: size, height: size }} />;
 
         case 'rs':
             return Icons.Rust(size);
@@ -111,20 +143,59 @@ export const getProfessionalIcon = (name, kind, size = 14) => {
         case 'java':
         case 'class':
         case 'jar':
-            return <Coffee size={size} color="#f89820" />;
+            return <img src={javaLogo} alt="java" style={{ width: size, height: size }} />;
 
         case 'c':
         case 'h':
-            return <FileCode size={size} color="#A8B9CC" />;
+            return <img src={cLogo} alt="c" style={{ width: size, height: size }} />;
 
         case 'cpp':
         case 'cc':
         case 'cxx':
         case 'hpp':
-            return <FileCode size={size} color="#00599C" />;
+            return <img src={cppLogo} alt="cpp" style={{ width: size, height: size }} />;
 
         case 'go':
-            return <FileCode size={size} color="#00ADD8" />;
+            return <img src={goLogo} alt="go" style={{ width: size, height: size }} />;
+
+        case 'php':
+        case 'php3':
+        case 'php4':
+        case 'php5':
+        case 'phps':
+            return <img src={phpLogo} alt="php" style={{ width: size, height: size }} />;
+
+        case 'rb':
+        case 'rbw':
+        case 'rake':
+        case 'gemspec':
+            return <img src={rubyLogo} alt="ruby" style={{ width: size, height: size }} />;
+
+
+        case 'swift':
+            return <img src={swiftLogo} alt="swift" style={{ width: size, height: size }} />;
+
+        case 'cs':
+        case 'cshtml':
+            return <img src={csharpLogo} alt="csharp" style={{ width: size, height: size }} />;
+
+        case 'hs':
+        case 'lhs':
+            return <img src={haskellLogo} alt="haskell" style={{ width: size, height: size }} />;
+
+
+        case 'kt':
+        case 'kts':
+            return <img src={kotlinLogo} alt="kotlin" style={{ width: size, height: size }} />;
+
+        case 'lua':
+        case 'luac':
+            return <img src={luaLogo} alt="lua" style={{ width: size, height: size }} />;
+
+        case 'r':
+        case 'rmd':
+        case 'rdata':
+            return <img src={rLogo} alt="r" style={{ width: size, height: size }} />;
 
         case 'sh':
         case 'bash':

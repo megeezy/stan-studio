@@ -1,0 +1,77 @@
+name: "Build & Release Stan Studio"
+
+on:
+  push:
+    tags:
+      - "v*"           # Triggers on tags like v1.0.0, v1.2.3
+  workflow_dispatch:   # Also allows manual trigger from GitHub UI
+
+jobs:
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu-22.04
+            args: ""
+          - platform: windows-latest
+            args: ""
+          - platform: macos-latest
+            args: "--target aarch64-apple-darwin"   # Apple Silicon
+          - platform: macos-13
+            args: "--target x86_64-apple-darwin"    # Intel Mac
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || matrix.platform == 'macos-13' && 'x86_64-apple-darwin' || '' }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libgtk-3-dev \
+            libsoup-3.0-dev \
+            libjavascriptcoregtk-4.1-dev
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Stan Studio ${{ github.ref_name }}"
+          releaseBody: |
+            ## Stan Studio ${{ github.ref_name }}
+
+            A new release of Stan Studio — build at the speed of thought.
+
+            ### Downloads
+            - **Linux**: `.AppImage` (portable), `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL)
+            - **Windows**: `.msi` installer, `.exe` NSIS installer
+            - **macOS**: `.dmg` (Intel & Apple Silicon)
+
+            See the Assets below to download the version for your platform.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

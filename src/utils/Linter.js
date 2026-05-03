@@ -56,13 +56,13 @@ export const lintStanFile = (content) => {
         }
 
         // Rule 5: Signature check
-        if (line.includes('STANGRAVITY') && !line.includes('PRIVATE')) {
+        if (line.includes('STANMAYA') && !line.includes('PRIVATE')) {
             diagnostics.push({
                 severity: 'error',
-                message: 'Security Violation: STANGRAVITY signature must be marked PRIVATE.',
+                message: 'Security Violation: STANMAYA signature must be marked PRIVATE.',
                 line: index + 1,
-                column: line.indexOf('STANGRAVITY') + 1,
-                length: 'STANGRAVITY'.length
+                column: line.indexOf('STANMAYA') + 1,
+                length: 'STANMAYA'.length
             });
         }
     });
@@ -133,6 +133,6 @@ export const STAN_MONARCH_TOKENS = {
         ]
     },
     keywords: [
-        "module", "export", "import", "stan", "studio", "antigravity", "sync", "async", "const", "var"
+        "module", "export", "import", "stan", "studio", "maya", "sync", "async", "const", "var"
     ]
 };

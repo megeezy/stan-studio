@@ -235,6 +235,28 @@ const Terminal = ({ terminalId, shell = null, cwd = null, isVisible = true }) =>
 
                     backendListenerRef.current = unlisten;
 
+                    // Add listener for remote execution (e.g. from Maya)
+                    const handleRemoteExecute = async (e) => {
+                        const command = e.detail;
+                        if (!isCancelledRef.current && isTauri()) {
+                            try {
+                                const { invoke } = await import('@tauri-apps/api/core');
+                                // Write command + Enter
+                                await invoke('write_to_terminal', { id: termId, data: command + '\r' });
+                                console.log(`[Terminal ${termId}] Executed remote command:`, command);
+                            } catch (err) {
+                                console.error(`[Terminal ${termId}] Remote execute error:`, err);
+                            }
+                        }
+                    };
+                    window.addEventListener('terminal-execute-command', handleRemoteExecute);
+
+                    // Store for cleanup
+                    backendListenerRef.current = () => {
+                        unlisten();
+                        window.removeEventListener('terminal-execute-command', handleRemoteExecute);
+                    };
+
                     // Sync initial terminal size
                     const { rows, cols } = xterm;
                     await invoke('resize_terminal', { id: termId, rows, cols }).catch(() => { });

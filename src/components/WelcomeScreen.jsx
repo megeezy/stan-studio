@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     FolderOpen,
     FilePlus,
-    Zap,
     Terminal as TerminalIcon,
     Github,
     FileCode,
@@ -16,7 +15,7 @@ import {
 import stanLogo from '../assets/stan-logo.png';
 import { useSettings } from '../hooks/useSettings';
 
-const WelcomeScreen = ({ onOpenFolder, onNewFile, onNewStanProject, recentFolders = [], onOpenRecent, onNewWindow, onCloneRepo, onNewTerminal }) => {
+const WelcomeScreen = ({ onOpenFolder, onNewFile, recentFolders = [], onOpenRecent, onNewWindow, onCloneRepo, onNewTerminal }) => {
     const [showAllRecent, setShowAllRecent] = useState(false);
     const { settings, updateSetting } = useSettings();
 
@@ -38,8 +37,8 @@ const WelcomeScreen = ({ onOpenFolder, onNewFile, onNewStanProject, recentFolder
             icon: <TerminalIcon size={20} className="academy-icon-terminal" />
         },
         {
-            title: 'Proprietary .stan Projects',
-            description: 'How to use our unique binary-signature compression.',
+            title: 'Advanced Editor Features',
+            description: 'Explore multi-cursor editing, code folding, and integrated debugging.',
             progress: 0,
             icon: <BookOpen size={20} className="academy-icon-book" />
         }
@@ -113,10 +112,6 @@ const WelcomeScreen = ({ onOpenFolder, onNewFile, onNewStanProject, recentFolder
                                 <div className="action-item" onClick={onNewTerminal}>
                                     <span className="action-icon"><TerminalIcon size={16} /></span>
                                     <span className="action-label">Open Terminal</span>
-                                </div>
-                                <div className="action-item" onClick={onNewStanProject}>
-                                    <span className="action-icon"><Zap size={16} style={{ color: 'var(--accent)' }} /></span>
-                                    <span className="action-label">New Stan Project</span>
                                 </div>
                                 <div className="action-item" onClick={onCloneRepo}>
                                     <span className="action-icon"><Github size={16} /></span>

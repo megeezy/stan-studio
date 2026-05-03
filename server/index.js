@@ -1,4 +1,4 @@
-/* eslint-env node */
+/* global process */
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';

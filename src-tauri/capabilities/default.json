@@ -108,6 +108,10 @@
         {
           "cmd": "stan-engine",
           "args": true
+        },
+        {
+          "cmd": "curl",
+          "args": true
         }
       ]
     },

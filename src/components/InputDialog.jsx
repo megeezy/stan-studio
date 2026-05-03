@@ -30,11 +30,7 @@ const InputDialog = ({
         }
     }, [isOpen, type]);
 
-    useEffect(() => {
-        if (isOpen) {
-            setValue(defaultValue || '');
-        }
-    }, [defaultValue, isOpen]);
+
 
     if (!isOpen) return null;
 

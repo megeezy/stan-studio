@@ -3,7 +3,7 @@ import Editor, { DiffEditor } from '@monaco-editor/react';
 import { X, Columns, Layout, ChevronRight } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { useSettings } from '../hooks/useSettings';
-import { useDiagnostics } from '../context/DiagnosticsContext';
+import { useDiagnostics } from '../hooks/useDiagnostics';
 import { lintStanFile, lintPythonFile, STAN_MONARCH_TOKENS } from '../utils/Linter';
 import { getLanguageIdByFilename, CUSTOM_LANGUAGES } from '../utils/LanguageRegistry';
 import { getProfessionalIcon } from '../utils/IconRegistry';

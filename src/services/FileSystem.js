@@ -205,7 +205,7 @@ export const FileSystem = {
                 try {
                     await tauriFs.writeTextFile(tempPath, content);
                     await tauriFs.rename(tempPath, fileObject.path);
-                } catch (innerErr) {
+                } catch {
                     await tauriFs.writeTextFile(fileObject.path, content);
                 }
             }
@@ -231,6 +231,15 @@ export const FileSystem = {
             return { ...item, path: newPath, id: newPath, name: newName };
         } else {
             throw new Error("Rename is not currently supported in web mode.");
+        }
+    },
+
+    async removeFile(item) {
+        if (item.type === 'native') {
+            if (!tauriFs) tauriFs = await import('@tauri-apps/plugin-fs');
+            await tauriFs.remove(item.path);
+        } else {
+            throw new Error("Deletion is not currently supported in web mode.");
         }
     },
 

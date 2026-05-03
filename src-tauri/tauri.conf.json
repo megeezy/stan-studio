@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "stan-studio",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "productName": "Stan Studio",
+  "version": "1.0.0",
+  "identifier": "io.stanstudio.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -35,6 +35,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "shortDescription": "A high-performance code editor built with Stan.",
+    "longDescription": "Stan Studio is a lightweight, blazing-fast code editor built for developers who value speed, clarity, and control.",
+    "category": "DeveloperTool",
+    "copyright": "© 2026 Stan Studio"
   }
 }

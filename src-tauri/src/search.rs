@@ -82,3 +82,36 @@ pub async fn search_in_files_native(
 
     Ok(results)
 }
+
+#[tauri::command]
+pub async fn list_files_native(path: String) -> Result<Vec<String>, String> {
+    let mut files = Vec::new();
+    let root = Path::new(&path);
+
+    if !root.exists() {
+        return Err("Path does not exist".to_string());
+    }
+
+    let walker = WalkBuilder::new(root)
+        .hidden(false)
+        .git_ignore(true)
+        .build();
+
+    for result in walker {
+        let entry = match result {
+            Ok(entry) => entry,
+            Err(_) => continue,
+        };
+
+        if entry.file_type().map(|f| f.is_file()).unwrap_or(false) {
+            files.push(entry.path().to_string_lossy().to_string());
+            
+            // Safety limit for fuzzy search
+            if files.len() > 10000 {
+                break;
+            }
+        }
+    }
+
+    Ok(files)
+}

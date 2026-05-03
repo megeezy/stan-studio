@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Files,
-    Search, GitGraph, Play, LayoutGrid, Settings, User, ChevronRight, Brain, Sparkles, Layers,
+    Search, GitGraph, Play, LayoutGrid, Settings, User, ChevronRight, Brain, Layers,
     Database, Globe
 } from 'lucide-react';
 
@@ -17,9 +17,9 @@ const ActivityBar = ({ activeView, onSwitchView, onOpenSettings }) => {
         { id: 'RUN', icon: Play },
         { id: 'EXTENSIONS', icon: LayoutGrid },
         { id: 'MODELS', icon: Brain },
-        { id: 'COPILOT', icon: Sparkles },
         { id: 'CANVAS', icon: Layers },
     ];
+
 
     return (
         <aside className="activity-bar">
@@ -33,7 +33,7 @@ const ActivityBar = ({ activeView, onSwitchView, onOpenSettings }) => {
                         {React.createElement(IconComponent, {
                             size: 24,
                             strokeWidth: 1.5,
-                            color: id === 'COPILOT' && activeView === 'COPILOT' ? 'var(--accent)' : 'currentColor'
+                            color: 'currentColor'
                         })}
                     </div>
                 ))}

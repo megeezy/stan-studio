@@ -7,7 +7,7 @@ import { SettingsProvider } from './context/SettingsContext'
 import { DiagnosticsProvider } from './context/DiagnosticsContext'
 import ErrorBoundary from './components/ErrorBoundary'
 
-console.log("[Main] Rendering application...");
+console.log("[Main] Starting application mount...");
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>

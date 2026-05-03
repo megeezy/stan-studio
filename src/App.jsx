@@ -6,12 +6,13 @@ import StatusBar from './components/StatusBar';
 import Panel from './components/Panel';
 import Loader from './components/Loader';
 import WelcomeScreen from './components/WelcomeScreen';
-import { exportToStan, importFromStan } from './utils/ProjectManager';
+import { exportToStan } from './utils/ProjectManager';
+
 import { FileSystem } from './services/FileSystem';
 import { Runner } from './services/Runner';
 import { GitService } from './services/GitService';
 import welcomeBgm from './assets/stan_loader_bgm.mp3';
-import AIAgent from './components/AIAgent';
+
 import CodeCanvas from './components/CodeCanvas';
 
 import EditorArea from './components/EditorArea';
@@ -20,11 +21,12 @@ import { ToastContainer } from './components/Toast';
 import CommandPalette from './components/CommandPalette';
 import SettingsPanel from './components/SettingsPanel';
 import { useSettings } from './hooks/useSettings';
+import AIAgent from './components/AIAgent';
 
 const isTauri = () => typeof window !== 'undefined' && (window.__TAURI_INTERNALS__ || window.__TAURI__);
 
 function App() {
-  console.log("[App] Mounting...");
+  console.log("[App] Component Execution Started");
   const [activeFileId, setActiveFileId] = useState(null);
   const [openFiles, setOpenFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,11 +43,8 @@ function App() {
   const unwatchRef = useRef(null);
   const autoSaveTimerRef = useRef(null);
   const hasWelcomedRef = useRef(false);
-  const [showAIChat, setShowAIChat] = useState(true);
-  const [cursorPosition, setCursorPosition] = useState({ lineNumber: 1, column: 1 });
   const [showCanvas, setShowCanvas] = useState(false);
-  const [mayaWidth, setMayaWidth] = useState(300);
-  const [isResizingMaya, setIsResizingMaya] = useState(false);
+  const [showMaya, setShowMaya] = useState(false);
 
   // New UI state for Modals and Toasts
   const [toasts, setToasts] = useState([]);
@@ -76,6 +75,7 @@ function App() {
   const showInput = useCallback((title, defaultValue, placeholder, description) => {
     return new Promise((resolve) => {
       setInputDialog({
+        id: Date.now(),
         isOpen: true,
         type: 'input',
         title,
@@ -97,6 +97,7 @@ function App() {
   const showConfirm = (title, description, confirmLabel = 'OK', cancelLabel = 'Cancel', thirdOptionLabel = null) => {
     return new Promise((resolve) => {
       setInputDialog({
+        id: Date.now(),
         isOpen: true,
         type: 'confirm',
         title,
@@ -448,66 +449,30 @@ function App() {
       case 'close_folder':
         handleCloseFolder();
         break;
+      case 'maya':
+        setShowMaya(true);
+        break;
     }
   };
 
-  const handleOpenStanProject = async () => {
-    try {
-      let tree, projectName;
-
-      if (isTauri()) {
-        const { open } = await import('@tauri-apps/plugin-dialog');
-        const { readTextFile } = await import('@tauri-apps/plugin-fs');
-        const path = await open({ filters: [{ name: 'Stan Project', extensions: ['stan'] }] });
-        if (!path) return;
-        const actualPath = Array.isArray(path) ? path[0] : path;
-        const content = await readTextFile(actualPath);
-        // We'd need to simulate the file object for importFromStan
-        const blob = new Blob([content], { type: 'application/stan' });
-        const file = new File([blob], actualPath.split(/[/\\]/).pop());
-        tree = await importFromStan(file);
-        projectName = file.name.replace('.stan', '');
-      } else {
-        const [handle] = await window.showOpenFilePicker({
-          types: [{ description: 'Stan Project', accept: { 'application/stan': ['.stan'] } }],
-        });
-        const file = await handle.getFile();
-        tree = await importFromStan(file);
-        projectName = file.name.replace('.stan', '');
-      }
-
-      let finalPath = isTauri() ? (Array.isArray(folderHandle) ? folderHandle[0] : folderHandle) : projectName;
-
-      setFileTree(tree);
-      setFolderHandle({ type: 'native', path: finalPath, name: projectName });
-
-      // Perform initial background scan for LSP indexing
-      import('./services/SymbolIndexer').then(async ({ SymbolIndexer }) => {
-        // Clear any previous project's symbols
-        SymbolIndexer.clearProjectSymbols();
-        const scanItems = async (items) => {
-          for (const item of items) {
-            if (item.kind === 'file' && !FileSystem.isBinary(item.name)) {
-              try {
-                const content = await FileSystem.readFile(item);
-                SymbolIndexer.scanFile(item.id, content);
-              } catch { /* skip */ }
-            } else if (item.children) {
-              await scanItems(item.children);
-            }
-          }
-        };
-        scanItems(tree);
-      });
-
-      addToast(`Opened project: ${projectName}`, 'success');
-      setActiveFileId(null);
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        alert("Failed to open .stan project: " + err.message);
-      }
+  const handleMayaCommand = useCallback((command) => {
+    // Open terminal if not visible
+    if (!showPanel || panelActiveTab !== 'TERMINAL') {
+      setShowPanel(true);
+      setPanelActiveTab('TERMINAL');
     }
-  };
+
+    // Use the custom event or direct invoke to run command
+    // Terminal.jsx handles the backend, we can trigger a command execution
+    // Actually, Terminal.jsx usually starts a shell. We can "type" into it.
+    // For a cleaner 'run command' experience, we'd need to know the active terminal ID.
+    // But Maya can also direct-run via Runner if needed, or we just inject into terminal.
+
+    // Let's use a simpler approach: Dispatch an event that Terminal.jsx can pick up to execute
+    window.dispatchEvent(new CustomEvent('terminal-execute-command', { detail: command }));
+    addToast(`Maya executing: ${command}`, 'info');
+  }, [showPanel, panelActiveTab, addToast]);
+
 
   const handleExportProject = async () => {
     if (!folderHandle || fileTree.length === 0) {
@@ -987,26 +952,6 @@ function App() {
     }
   }, [addToast, updateRecentFolders, showInput]);
 
-  const handleNewStanProject = useCallback(async () => {
-    const projectName = await showInput("New Project", "my-stan-project", "Enter project name");
-    if (!projectName) return;
-
-    const baseArchitecture = [
-      {
-        id: 'root-src', name: 'src', kind: 'directory', children: [
-          { id: 'root-src-main', name: 'main.js', kind: 'file', content: '// Stan Entry Point\nconsole.log("Hello Stan!");', isVirtual: true }
-        ]
-      },
-      { id: 'root-assets', name: 'assets', kind: 'directory', children: [] },
-      { id: 'root-config', name: 'config.json', kind: 'file', content: JSON.stringify({ name: projectName, version: "1.0.0" }, null, 2), isVirtual: true },
-      { id: 'root-readme', name: 'README.md', kind: 'file', content: `# ${projectName}\nCreated with Stan Studio.`, isVirtual: true }
-    ];
-
-    setFileTree(baseArchitecture);
-    setFolderHandle({ name: projectName });
-    setOpenFiles([]);
-    setActiveFileId(null);
-  }, [showInput]);
 
 
   const handleCloseFile = async (id) => {
@@ -1130,37 +1075,19 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSaveAll, handleRunFile, handleNewWindow, handleNewTextFile, handleOpenFile, handleToggleTerminal, handleNewTerminal, handleSplitTerminal, handleSaveAs]);
 
+  // Safety timeout: If settings or loading take too long, force mount anyway
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (isResizingMaya) {
-        const newWidth = window.innerWidth - e.clientX;
-        if (newWidth > 200 && newWidth < 800) {
-          setMayaWidth(newWidth);
-        }
+    const timer = setTimeout(() => {
+      if (loading) {
+        console.warn("[App] Boot timeout reached, forcing mount...");
+        setLoading(false);
       }
-    };
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [loading]);
 
-    const handleMouseUp = () => {
-      setIsResizingMaya(false);
-      document.body.style.cursor = 'default';
-    };
-
-    if (isResizingMaya) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.userSelect = 'auto';
-    };
-  }, [isResizingMaya]);
-
-  if (loading || !settingsLoaded) {
-    console.log("[App] Still loading...", { loading, settingsLoaded });
+  // We should still wait for initial loading, but maybe be more lenient with settings
+  if (loading) {
     return <Loader />;
   }
 
@@ -1171,7 +1098,6 @@ function App() {
         onNewFile={handleNewFile}
         onOpenFile={handleOpenFile}
         onOpenFolder={handleOpenFolder}
-        onOpenStanProject={handleOpenStanProject}
         onExportProject={handleExportProject}
         onSaveFile={handleSaveFileLocal}
         onSaveAll={handleSaveAll}
@@ -1195,10 +1121,10 @@ function App() {
         <MemoizedActivityBar
           activeView={currentSidebarView}
           onSwitchView={(view) => {
-            if (view === 'COPILOT') {
-              setShowAIChat(!showAIChat);
-            } else if (view === 'CANVAS') {
+            if (view === 'CANVAS') {
               setShowCanvas(!showCanvas);
+            } else if (view === 'MODELS') {
+              setShowMaya(!showMaya);
             } else {
               setCurrentSidebarView(view);
               setShowSettings(null);
@@ -1259,12 +1185,10 @@ function App() {
                   });
                 }}
                 onReorderTabs={setOpenFiles}
-                onCursorChange={setCursorPosition}
               />
             ) : (<WelcomeScreen
               onNewFile={folderHandle ? () => handleCreateFile(folderHandle) : handleNewFile}
               onOpenFolder={handleOpenFolder}
-              onNewStanProject={handleNewStanProject}
               recentFolders={recentFolders}
               onOpenRecent={handleOpenRecent}
               onCloneRepo={handleCloneRepo}
@@ -1287,35 +1211,18 @@ function App() {
           )}
         </div>
 
-        {showAIChat && (
-          <div
-            className="maya-resizer"
-            onMouseDown={() => setIsResizingMaya(true)}
-            style={{
-              width: '4px',
-              cursor: 'col-resize',
-              backgroundColor: isResizingMaya ? 'var(--accent)' : 'transparent',
-              transition: 'background-color 0.2s',
-              zIndex: 101,
-              position: 'relative',
-              marginLeft: '-2px',
-              marginRight: '-2px'
-            }}
-          />
-        )}
-
-        <AIAgent
-          isOpen={showAIChat}
-          onClose={() => setShowAIChat(false)}
-          activeFile={activeFileData}
-          cursorPosition={cursorPosition}
-          style={{ width: `${mayaWidth}px` }}
-        />
-
         <CodeCanvas
           isOpen={showCanvas}
           onClose={() => setShowCanvas(false)}
           onNavigate={handleSelectFile}
+        />
+
+        <AIAgent
+          isOpen={showMaya}
+          onClose={() => setShowMaya(false)}
+          activeFile={activeFileData}
+          folderHandle={folderHandle}
+          onRunCommand={handleMayaCommand}
         />
       </div>
 
@@ -1332,7 +1239,7 @@ function App() {
         />
       )}
 
-      <InputDialog {...inputDialog} onCancel={() => setInputDialog(prev => ({ ...prev, isOpen: false }))} />
+      <InputDialog key={inputDialog.id || 'closed'} {...inputDialog} onCancel={() => setInputDialog(prev => ({ ...prev, isOpen: false }))} />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
