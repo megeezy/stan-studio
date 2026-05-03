@@ -1,103 +1,82 @@
-# Stan Studio 🛸
+# Stan Studio
 
-[![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Tauri](https://img.shields.io/badge/Tauri-FFC131?style=flat&logo=tauri&logoColor=white)](https://tauri.app/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Stan Studio is an industrial-grade, AI-native integrated development environment (IDE) engineered for agentic workflows and local-first software development. It leverages a high-performance hybrid architecture combining a Rust-based control plane with a React-driven user interface to provide a low-latency, secure, and highly extensible workspace.
 
-**Stan Studio** is an AI-native desktop IDE designed for high-precision code generation and automated workspace manipulation. Built on **Tauri** and **React**, it integrates a powerful local AI agent named **Maya** directly into the development workflow.
+## Core Components
 
-[Features](#features) • [Architecture](#architecture) • [Maya AI](#maya-ai-agent) • [Quick Start](#quick-start) • [Project Structure](#project-structure)
+### 1. Maya Agentic Engine
+The Maya Engine is the central intelligence layer of Stan Studio. Unlike traditional autocomplete features or sidebar chat assistants, Maya is an autonomous agent integrated directly into the workspace's operational fabric.
+*   **Tool-Use Protocol**: Maya utilizes a structured communication protocol to interact with the host system. It can autonomously create, modify, and delete files, as well as execute complex terminal sequences.
+*   **Local Inference Implementation**: By default, the engine interfaces with local Ollama instances (typically Qwen2.5-Coder), ensuring that all source code and intellectual property remain on the host machine.
+*   **Context Management**: Maya maintains a dynamic awareness of the active project structure, open files, and terminal state, allowing for high-precision interventions.
 
----
+### 2. Rust Control Plane (src-tauri)
+The backend is built in Rust to ensure memory safety and peak performance. It handles the critical bridge between the web-based UI and the underlying operating system.
+*   **Native Bridge**: Facilitates secure file system access and system-level process management through Tauri's IPC mechanism.
+*   **Terminal PTY**: Manages the pseudo-terminal sessions, ensuring low-latency character throughput and correct signal handling for the integrated terminal.
+*   **Security Sandbox**: Enforces strict permissions on directory access and external process execution.
 
-## Features
+### 3. Editor Subsystem
+The editor is powered by a customized implementation of the Monaco Editor, the same engine that powers VS Code, ensuring a familiar and powerful editing experience.
+*   **Symbol Indexing**: An integrated service that scans files for functions, classes, and variables to facilitate rapid navigation and AI context injection.
+*   **Multi-File Management**: Support for split-views, multiple tabs, and virtual files for diffing and temporary AI-generated drafts.
 
-*   🧠 **Maya AI Agent**: An integrated agent that doesn't just chat—it performs actions. Maya can create, edit, and delete files, and execute terminal commands.
-*   💻 **Monaco Editor**: Industry-standard code editing experience with syntax highlighting and intelligent features.
-*   🛠️ **Integrated Terminal**: Full-featured Xterm-based terminal with support for multi-sessions and split-screen.
-*   📁 **Universal File System**: Native support for local directories via Tauri and web-based file management.
-*   🚀 **Code Runner**: Execute scripts and files directly within the studio.
-*   📦 **Project Portability**: Export entire project states into compressed `.stan` files for easy sharing and backup.
-*   🎨 **Premium UI**: Modern, glassmorphic dark-theme design with a focus on developer ergonomics.
+### 4. Terminal and Shell Integration
+Stan Studio features an integrated Xterm.js terminal that provides a full-fidelity shell experience.
+*   **Toolchain Integration**: Seamlessly interfaces with existing compilers, interpreters, and version control systems (Git).
+*   **Automated Execution**: The Maya Engine can directly pipe commands into the terminal, allowing for automated testing, building, and deployment cycles.
 
----
+### 5. Project State and Serialization
+The studio introduces the `.stan` project format for workspace persistence and portability.
+*   **State Compression**: Projects can be exported as compressed archives containing the codebase, session metadata, and configuration.
+*   **Universal File System**: Supports both native local paths and web-based file handling, enabling flexible deployment scenarios.
 
-## Maya AI Agent
+## Stan Studio vs. VS Code
 
-Maya is the brain of Stan Studio. Unlike traditional sidecar chats, Maya has direct access to your workspace tools.
+| Feature | Stan Studio | VS Code |
+| :--- | :--- | :--- |
+| **AI Integration** | Agentic-first: AI has native tool access to the workspace and terminal. | Extension-based: AI is typically a sidecar (Copilot) with limited workspace control. |
+| **Privacy** | Local-first: Designed to run locally via Ollama with zero data leakage. | Cloud-dependent: Most AI features require data transmission to external servers. |
+| **Architecture** | Tailored for AI: The entire IDE architecture is built around the agent-editor-terminal loop. | General Purpose: AI is an overlay on a traditional text editing architecture. |
+| **Performance** | Lightweight: Specialized Tauri/Rust core focuses on core development efficiency. | Extension Heavy: Can become resource-intensive as the number of plugins grows. |
+| **Project Model** | Session-based: Optimized for high-intensity task execution and portability. | Project-based: Optimized for long-term static codebase management. |
 
-### Capabilities
-*   **File Manipulation**: `create_file`, `edit_file`, `delete_item`.
-*   **Exploration**: `read_file`, `list_files`.
-*   **Automation**: `run_command` in the integrated terminal.
-*   **Local-First**: Runs via **Ollama** (defaulting to `qwen2.5-coder`) for privacy and speed.
+## Technical Specification
 
----
+*   **Foundation**: Tauri Framework (Rust Backend, Web Frontend)
+*   **Frontend Logic**: React 19 / Vite
+*   **Editor**: Monaco Editor
+*   **Terminal**: Xterm.js with WebGL acceleration
+*   **Communication**: gRPC / JSON-RPC
+*   **AI Backend**: Local Ollama (qwen2.5-coder:3b recommended)
 
-## Architecture
-
-Stan Studio uses a high-performance hybrid architecture:
-
-*   **Frontend (React + Vite)**: Handles the premium UI, Monaco editor integration, and real-time state management.
-*   **Backend (Rust + Tauri)**: Provides secure, native access to the file system, process spawning, and high-performance bridges to AI models.
-*   **AI Layer (Ollama)**: Local LLM execution for agentic reasoning and code generation.
-
----
-
-## Project Structure
-
-```text
-stan-studio/
-├── src-tauri/                # Rust Native Bridge
-│   ├── src/
-│   │   ├── main.rs           # Tauri entry point
-│   │   └── lib.rs            # Native tool implementations
-├── src/                      # Frontend Application
-│   ├── components/           # UI Components (Editor, Terminal, Panels)
-│   ├── services/             # Core Logic (MayaService, FileSystem, Runner)
-│   ├── utils/                # Project & State Utilities
-│   └── App.jsx               # Main Application Logic
-├── public/                   # Static Assets
-└── package.json              # Dependencies
-```
-
----
-
-## Quick Start
+## Installation and Setup
 
 ### Prerequisites
-*   **Node.js** ≥ 20.0
-*   **Rust** ≥ 1.78
-*   **Ollama** (Running locally for Maya's agentic features)
+*   Node.js (Version 20 or higher)
+*   Rust Toolchain (Stable)
+*   Ollama (For local AI capabilities)
 
-### Installation
-
-1. **Clone the repository**
+### Build Instructions
+1. Clone the repository:
    ```bash
    git clone https://github.com/megeezy/stan-studio.git
-   cd stan-studio
    ```
-
-2. **Install dependencies**
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. **Start the studio**
+3. Launch in development mode:
    ```bash
    npm run tauri dev
    ```
+4. Generate a production build:
+   ```bash
+   npm run tauri build
+   ```
 
-### Configuration
-You can switch Maya's underlying model in the **Settings** panel (default is `qwen2.5-coder:3b`).
-
----
+## Configuration
+Model parameters and environment settings can be adjusted via the integrated Settings panel or by modifying the `localStorage` keys for `MAYA_MODEL`.
 
 ## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-<p align="center">Built by the Stan Studio Team</p>
+Stan Studio is distributed under the MIT License.
