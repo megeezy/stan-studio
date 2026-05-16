@@ -5,7 +5,7 @@ import stanLogo from '../assets/stan-logo.png';
 // import { getCurrentWindow } from '@tauri-apps/api/window';
 
 // Helper to check if running in Tauri environment
-const isTauri = () => typeof window !== 'undefined' && (window.__TAURI_INTERNALS__ || window.__TAURI__);
+const isTauri = () => typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window || window.isTauri !== undefined);
 
 const DropdownMenu = ({ label, items, isOpen, onOpen, onClose }) => {
     const menuRef = useRef(null);
@@ -216,6 +216,7 @@ const NavBar = ({ onNewTextFile, onNewFile, onOpenFile, onOpenFolder, onExportPr
                 borderBottom: '1px solid var(--border)',
                 padding: '0 4px'
             }}
+            data-tauri-drag-region
         >
             {/* Left: Branding and Menus */}
             <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto', height: '100%', paddingLeft: '8px' }} data-tauri-no-drag>

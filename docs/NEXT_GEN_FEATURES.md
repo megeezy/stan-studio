@@ -31,7 +31,7 @@ To build the world's **lightest** IDE that scales to become the **most advanced*
 ## 2. 🧠 The "Most Advanced" Layer (On-Demand)
 *Advanced features that feel weightless.*
 
-### A. Local AI Orchestrator ("Antigravity Core")
+### A. Local AI Orchestrator ("Maya Core")
 - **Concept:** A local RAG system that indexes your code in the background (low priority thread).
 - **Privacy:** 100% Local. No cloud latency. No data leaks.
 

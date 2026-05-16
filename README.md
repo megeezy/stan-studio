@@ -1,5 +1,19 @@
 # Stan Studio
 
+<p align="center">
+  <img src="images/demo1.png" width="49%" alt="Stan Studio Demo 1" />
+  <img src="images/demo2.png" width="49%" alt="Stan Studio Demo 2" />
+</p>
+<p align="center">
+  <img src="images/demo3.png" width="49%" alt="Stan Studio Demo 3" />
+  <img src="images/demo4.png" width="49%" alt="Stan Studio Demo 4" />
+</p>
+<p align="center">
+  <img src="images/themes.png" width="49%" alt="Themes" />
+  <img src="images/custom_wallpaper_demo.png" width="49%" alt="Custom Wallpaper" />
+</p>
+
+
 **Important: Development Status and Disclaimer**
 Stan Studio is currently in a pre-alpha development phase. A significant number of features are incomplete, experimental, or non-functional. Users should expect frequent bugs, performance inconsistencies, and potential instability. 
 

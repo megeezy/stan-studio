@@ -83,7 +83,7 @@ const WelcomeScreen = ({ onOpenFolder, onNewFile, recentFolders = [], onOpenRece
                         }}>
                             Stan Studio
                         </h1>
-                        <p style={{ margin: 0, opacity: 0.5, fontSize: '12px', fontWeight: '400' }}>Build at the speed of thought.</p>
+                        <p style={{ margin: 0, opacity: 0.5, fontSize: '12px', fontWeight: '400' }}>your own workspace.</p>
                     </div>
                 </div>
 
