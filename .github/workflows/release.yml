@@ -64,7 +64,7 @@ jobs:
           releaseBody: |
             ## Stan Studio ${{ github.ref_name }}
 
-            A new release of Stan Studio — build at the speed of thought.
+            A new release of Stan Studio — your own workspace.
 
             ### Downloads
             - **Linux**: `.AppImage` (portable), `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL)
