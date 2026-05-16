@@ -22,6 +22,10 @@ The Maya Agentic Engine is in an early "beginner" stage and is not yet fully int
 ## Overview
 Stan Studio is an industrial-grade, AI-native integrated development environment (IDE) engineered for agentic workflows and local-first software development. It leverages a high-performance hybrid architecture combining a Rust-based control plane with a React-driven user interface to provide a low-latency, secure, and highly extensible workspace.
 
+<p align="center">
+  <img src="images/stan-logo.png" width="400" alt="Stan Studio Logo" />
+</p>
+
 ## Core Components
 
 ### 1. Maya Agentic Engine
